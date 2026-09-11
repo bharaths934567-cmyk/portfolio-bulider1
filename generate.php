@@ -11,7 +11,7 @@ $p = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$p) { die('Portfolio not found.'); }
 
 // The rendered HTML already embeds its own CSS — strip closing tags to inject a toolbar.
-$html = str_replace('</body></html>', '', render_portfolio($p, $p));
+$html = str_replace('</body></html>', '', render_template($p, $p));
 ?>
 <?= $html ?>
 <style>
