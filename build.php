@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html><html><head><meta charset="utf-8"><title>Build Portfolio</title>
 <link rel="stylesheet" href="assets/style.css"></head><body>
 <nav class="topnav"><span class="brand">🚀 Portfolio Builder</span>
-<a href="choose_template.php">← Templates</a></nav>
+<span><a href="choose_template.php">← Back to Templates</a> <a href="my_portfolios.php">My Portfolios</a></span></nav>
 <div class="wrap">
 <h1>Step 2 · Enter Your Details</h1>
 <form method="post" id="buildForm" enctype="multipart/form-data">

@@ -21,11 +21,13 @@ $html = str_replace('</body></html>', '', render_template($p, $p));
              border-radius:8px; text-decoration:none; font-weight:bold; border:none; cursor:pointer; }
   .btn-html { background:#4f6df5; color:#fff; }
   .btn-pdf  { background:#e14f7a; color:#fff; font-size:.95rem; }
+  .btn-back { background:#343b4d; color:#fff; }
   body { padding-top:64px; }
   @media print { .toolbar { display:none !important; } body { padding-top:0; } }
 </style>
 <div class="toolbar">
   <b style="color:#fff; margin-right:14px;">🎉 Your portfolio is ready! Choose a file type:</b>
+  <a class="btn-back" href="build.php">← Back to Edit</a>
   <a class="btn-html" href="export.php?id=<?= $id ?>&type=html">⬇ Download HTML</a>
   <a class="btn-pdf" href="download-pdf.php?id=<?= $id ?>">Download PDF</a>
   <a class="btn-html" style="background:#555" href="my_portfolios.php">← All Portfolios</a>

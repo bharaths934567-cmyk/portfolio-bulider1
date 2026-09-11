@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['template_id'])) {
 <!DOCTYPE html><html><head><meta charset="utf-8"><title>Choose Template</title>
 <link rel="stylesheet" href="assets/style.css"></head><body>
 <nav class="topnav"><span class="brand">🚀 Portfolio Builder</span>
-<a href="index.php">← Home</a></nav>
+<span><a href="index.php">← Back to Home</a> <a href="my_portfolios.php">My Portfolios</a></span></nav>
 <div class="wrap">
   <h1>Step 1 · Choose a Template</h1>
   <div class="tpl-grid">

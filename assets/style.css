@@ -3,6 +3,7 @@ body { background:#f4f6fb; color:#222; }
 a { color:#4f6df5; }
 .topnav { display:flex; justify-content:space-between; align-items:center; background:#1d2333; color:#fff; padding:14px 24px; }
 .topnav a { color:#cdd6ff; margin-left:10px; }
+.topnav a:hover { color:#fff; text-decoration:underline; }
 .brand { font-weight:bold; font-size:1.1rem; }
 .hero { text-align:center; padding:90px 20px; }
 .hero h1 { font-size:2.4rem; margin-bottom:12px; }
