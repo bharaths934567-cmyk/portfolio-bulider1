@@ -19,6 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return $out;
     };
     $customData = array_map('trim', $_POST['custom'] ?? []);
+    foreach ((array)($_FILES['custom_file']['name'] ?? []) as $key => $_) {
+      if (!empty($_FILES['custom_file']['tmp_name'][$key])) {
+        $customData[$key] = image_data_url(['error' => $_FILES['custom_file']['error'][$key], 'size' => $_FILES['custom_file']['size'][$key], 'tmp_name' => $_FILES['custom_file']['tmp_name'][$key]]);
+      }
+    }
     $fullName = trim($_POST['full_name'] ?? ($customData['name'] ?? ''));
     $tagline = trim($_POST['tagline'] ?? ($customData['job_title'] ?? ''));
     $about = trim($_POST['about'] ?? ($customData['about'] ?? ''));
@@ -52,12 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <a href="choose_template.php">← Templates</a></nav>
 <div class="wrap">
 <h1>Step 2 · Enter Your Details</h1>
-<form method="post" id="buildForm">
+<form method="post" id="buildForm" enctype="multipart/form-data">
 <?= csrf_field() ?>
 
 <?php if (!empty($selectedTemplate['template_html'])): ?>
   <fieldset><legend><?= e($selectedTemplate['name']) ?> details</legend>
-  <?php foreach (json_decode($selectedTemplate['fields_json'] ?? '[]', true) ?: [] as $field): ?><label><?= e($field['label'] ?? $field['key']) ?><textarea name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"></textarea></label><?php endforeach; ?>
+  <?php foreach (json_decode($selectedTemplate['fields_json'] ?? '[]', true) ?: [] as $field): ?><label><?= e($field['label'] ?? $field['key']) ?><?php if (($field['type'] ?? 'text') === 'file'): ?><input type="file" name="custom_file[<?= e($field['key']) ?>]" accept="image/jpeg,image/png,image/webp"><?php else: ?><textarea name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"></textarea><?php endif; ?></label><?php endforeach; ?>
   </fieldset>
 <?php else: ?>
 

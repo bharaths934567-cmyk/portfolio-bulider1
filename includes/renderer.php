@@ -11,6 +11,10 @@ function render_template(array $portfolio, array $template, bool $forExport = fa
     $html = $template['template_html'];
     foreach ($values as $key => $value) {
       $replacement = is_array($value) ? implode(', ', array_map('strval', $value)) : (string)$value;
+      if (preg_match('/^data:image\//', $replacement)) {
+        $html = preg_replace('/(src|href)=("|\')\{\{\s*' . preg_quote((string)$key, '/') . '\s*\}\}(' . preg_quote('\2', '/') . ')/i', '$1=$2' . $replacement . '$3', $html);
+        $html = preg_replace('/url\(\s*(["\'])?\{\{\s*' . preg_quote((string)$key, '/') . '\s*\}\}\1?\s*\)/i', 'url(' . $replacement . ')', $html);
+      }
       $html = preg_replace('/\{\{\s*' . preg_quote((string)$key, '/') . '\s*\}\}/i', nl2br(e($replacement)), $html);
     }
     $css = $template['template_css'] ?? '';

@@ -44,7 +44,7 @@ function template_fields(string $html): array {
     preg_match_all('/\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/', $html, $matches);
     $fields = [];
     foreach (array_values(array_unique($matches[1] ?? [])) as $key) {
-        $fields[] = ['key' => $key, 'label' => ucwords(str_replace(['_', '-'], ' ', $key)), 'type' => in_array($key, ['about', 'experience', 'education', 'skills', 'projects', 'gallery', 'services', 'achievements', 'certificates'], true) ? 'textarea' : 'text'];
+        $fields[] = ['key' => $key, 'label' => ucwords(str_replace(['_', '-'], ' ', $key)), 'type' => in_array($key, ['profile_image', 'avatar', 'photo', 'image', 'logo'], true) ? 'file' : (in_array($key, ['about', 'experience', 'education', 'skills', 'projects', 'gallery', 'services', 'achievements', 'certificates'], true) ? 'textarea' : 'text')];
     }
     return $fields;
 }
@@ -54,6 +54,13 @@ function clean_template_html(string $html): string {
     return preg_replace('/\s+on[a-z]+\s*=\s*(["\']).*?\1/is', '', $html);
 }
 function clean_template_css(string $css): string { return preg_replace('/@import\s+[^;]+;|expression\s*\(|url\s*\(\s*["\']?javascript:/i', '', $css); }
+function image_data_url(array $file, int $maxBytes = 5242880): ?string {
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
+    if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > $maxBytes || !is_uploaded_file($file['tmp_name'])) throw new RuntimeException('Image is invalid or too large.');
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || @getimagesize($file['tmp_name']) === false) throw new RuntimeException('Only JPG, PNG, and WebP images are allowed.');
+    return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file['tmp_name']));
+}
 
 function require_login() {
     if (empty($_SESSION['user_id'])) {

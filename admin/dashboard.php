@@ -33,18 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $css = clean_template_css(file_get_contents($_FILES['template_css']['tmp_name']));
     }
     $fieldsJson = $html !== null ? json_encode(template_fields($html), JSON_UNESCAPED_SLASHES) : null;
-  $previewImage = upload_file($_FILES['preview_image'] ?? [], 'previews', ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp']);
+    $previewData = image_data_url($_FILES['preview_image'] ?? []);
   if (!empty($_POST['id'])) {
     $values = [$name, $category, $desc, $layout, $color, $status];
     $sql = 'UPDATE templates SET name=?, category=?, description=?, layout_type=?, accent_color=?, status=?';
     if ($html !== null) { $sql .= ', template_html=?, fields_json=?'; $values[] = $html; $values[] = $fieldsJson; }
     if ($css !== null) { $sql .= ', template_css=?'; $values[] = $css; }
-    if ($previewImage) { $sql .= ', preview_image=?'; $values[] = $previewImage; }
+    if ($previewData) { $sql .= ', preview_data=?'; $values[] = $previewData; }
     $sql .= ' WHERE id=?'; $values[] = (int)$_POST['id'];
     $pdo->prepare($sql)->execute($values);
     $msg = 'Template updated.';
   } else {
-    $pdo->prepare('INSERT INTO templates (name, category, description, template_file, preview_image, template_html, template_css, fields_json, layout_type, accent_color, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)')->execute([$name, $category, $desc, 'modern.php', $previewImage, $html, $css, $fieldsJson, $layout, $color, $status]);
+    $pdo->prepare('INSERT INTO templates (name, category, description, template_file, preview_image, preview_data, template_html, template_css, fields_json, layout_type, accent_color, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')->execute([$name, $category, $desc, 'modern.php', null, $previewData, $html, $css, $fieldsJson, $layout, $color, $status]);
     $msg = 'Template added.';
   }
   } catch (Throwable $exception) { $error = $exception->getMessage(); }
@@ -98,7 +98,7 @@ $active    = $pdo->query("SELECT COUNT(*) c FROM templates WHERE status = 'activ
     <tr><th>ID</th><th>Preview</th><th>Name</th><th>Category</th><th>Status</th><th>Actions</th></tr>
     <?php foreach ($templates as $t): ?>
     <tr>
-      <td><?= $t['id'] ?></td><td><?php if (!empty($t['preview_image'])): ?><img class="template-thumb" src="../templates/<?= e($t['preview_image']) ?>" alt=""><?php else: ?><span class="template-thumb empty">No image</span><?php endif; ?></td><td><?= e($t['name']) ?></td>
+      <td><?= $t['id'] ?></td><td><?php if (!empty($t['preview_data'])): ?><img class="template-thumb" src="<?= e($t['preview_data']) ?>" alt=""><?php elseif (!empty($t['preview_image'])): ?><img class="template-thumb" src="../templates/<?= e($t['preview_image']) ?>" alt=""><?php else: ?><span class="template-thumb empty">No image</span><?php endif; ?></td><td><?= e($t['name']) ?></td>
       <td><?= e($t['category']) ?></td><td><?= e($t['status']) ?></td>
       <td>
         <a class="btn small" href="?edit=<?= $t['id'] ?>">Edit</a>
