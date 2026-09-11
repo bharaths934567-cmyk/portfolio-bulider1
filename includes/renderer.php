@@ -14,6 +14,7 @@ function render_portfolio(array $p, array $t, bool $forExport = false): string {
     $accent = e($t['accent_color']);
     $layout = $t['layout_type'];
     $name = e($p['full_name']);
+    $isGrunge = ($t['template_file'] ?? '') === 'grunge.php';
 
     ob_start();
     ?>
@@ -24,7 +25,26 @@ function render_portfolio(array $p, array $t, bool $forExport = false): string {
   body { background:#f4f6fb; color:#222; }
   .container { max-width:900px; margin:0 auto; background:#fff; min-height:100vh; padding:40px 50px; }
   a { color:<?= $accent ?>; }
-<?php if ($layout === 'modern'): ?>
+<?php if ($isGrunge): ?>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700&display=swap');
+  body { background:#121212 url('/portfolio-builder1/assets/images/grunge/bg.jpg') center/cover fixed; color:#f4f1ea; font-family:'Barlow Condensed',Arial,sans-serif; }
+  .container { max-width:1180px; background:rgba(16,16,16,.88); min-height:100vh; padding:42px 7vw 80px; }
+  .grunge-nav { display:flex; justify-content:flex-end; gap:30px; margin-bottom:70px; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+  .grunge-nav a { color:#f4f1ea; text-decoration:underline; text-underline-offset:4px; }
+  .header { display:grid; grid-template-columns:1.25fr .75fr; gap:55px; align-items:end; border:0; padding:0; margin:0 0 60px; }
+  .header:before { content:'AVAILABLE FOR WORK'; display:inline-block; position:absolute; margin-top:-290px; border:1px solid #f4f1ea; padding:14px 18px; font-size:13px; font-weight:700; letter-spacing:1px; }
+  .header h1 { font-family:'Anton',Impact,sans-serif; font-size:clamp(4rem,12vw,10rem); line-height:.85; text-transform:uppercase; color:#f4f1ea; letter-spacing:1px; }
+  .tagline { font-size:24px; line-height:1.05; max-width:380px; color:#f4f1ea; margin-bottom:22px; }
+  .contact { text-align:left; margin:0; padding-top:0; color:#c8c3ba; font-size:16px; }
+  .contact a { color:#f4f1ea; }
+  .grunge-photo { width:100%; height:520px; object-fit:cover; filter:grayscale(1) contrast(1.1); border:1px solid #f4f1ea; }
+  h2 { font-family:'Anton',Impact,sans-serif; color:#f4f1ea; border-bottom:1px solid #777; padding-bottom:8px; margin:44px 0 16px; font-size:30px; text-transform:uppercase; letter-spacing:1px; }
+  .item { margin-bottom:18px; font-size:18px; }
+  .item b { display:block; color:#fff; text-transform:uppercase; letter-spacing:.5px; }
+  .muted { color:#aaa39a; font-size:16px; }
+  .skills span { display:inline-block; border:1px solid #aaa39a; color:#f4f1ea; padding:5px 12px; margin:0 6px 8px 0; font-size:16px; }
+  .grunge-about { max-width:600px; font-size:22px; line-height:1.1; }
+<?php elseif ($layout === 'modern'): ?>
   .header { display:flex; gap:30px; border-left:8px solid <?= $accent ?>; padding-left:20px; margin-bottom:30px; }
   .header h1 { font-size:2.2rem; color:<?= $accent ?>; }
   .tagline { color:#666; font-size:1.1rem; }
@@ -58,17 +78,19 @@ function render_portfolio(array $p, array $t, bool $forExport = false): string {
   .skills span { background:#f0f0f0; border-left:4px solid <?= $accent ?>; padding:5px 12px; margin:0 6px 8px 0; display:inline-block; font-size:.85rem; }
 <?php endif; ?>
 </style></head><body><div class="container">
+<?php if ($isGrunge): ?><nav class="grunge-nav"><a href="#home">1. Home</a><a href="#works">2. Works</a><a href="#about">3. About</a><a href="#contact">4. Contact</a></nav><?php endif; ?>
 
-  <div class="header">
+  <div class="header" id="home">
     <div><h1><?= $name ?></h1><div class="tagline"><?= e($p['tagline']) ?></div></div>
     <div class="contact">
+      <?php if ($isGrunge): ?><img class="grunge-photo" src="/portfolio-builder1/assets/images/grunge/peter.jpg" alt="<?= $name ?> portrait"><?php endif; ?>
       <?= e($p['email']) ?><br><?= e($p['phone']) ?><br>
       <?php if ($p['website']): ?><a href="<?= e($p['website']) ?>"><?= e($p['website']) ?></a><?php endif; ?>
     </div>
   </div>
 
   <?php if (trim($p['about'] ?? '')): ?>
-  <h2>About Me</h2><p><?= nl2br(e($p['about'])) ?></p>
+  <h2 id="about">About Me</h2><p class="<?= $isGrunge ? 'grunge-about' : '' ?>"><?= nl2br(e($p['about'])) ?></p>
   <?php endif; ?>
 
   <?php if ($skills): ?>
@@ -86,7 +108,7 @@ function render_portfolio(array $p, array $t, bool $forExport = false): string {
   <?php endif; ?>
 
   <?php if ($proj): ?>
-  <h2>Projects</h2>
+  <h2 id="works">Projects</h2>
     <?php foreach ($proj as $r): ?>
     <div class="<?= $layout === 'creative' ? 'card' : 'item' ?>">
       <b><?= e($r['title'] ?? '') ?></b>
@@ -105,7 +127,7 @@ function render_portfolio(array $p, array $t, bool $forExport = false): string {
   <?php endif; ?>
 
   <?php if ($certifications): ?><h2>Certifications</h2><?php foreach ($certifications as $r): ?><div class="item"><b><?= e($r['name'] ?? '') ?></b> <?= e($r['organization'] ?? '') ?><?php if (!empty($r['url'])): ?> · <a href="<?= e($r['url']) ?>">Credential</a><?php endif; ?></div><?php endforeach; ?><?php endif; ?>
-  <?php if ($social): ?><h2>Connect</h2><p><?php foreach ($social as $label => $url): ?><?php if ($url): ?><a href="<?= e($url) ?>"><?= e(ucfirst($label)) ?></a> &nbsp;<?php endif; ?><?php endforeach; ?></p><?php endif; ?>
+  <?php if ($social): ?><h2 id="contact">Connect</h2><p><?php foreach ($social as $label => $url): ?><?php if ($url): ?><a href="<?= e($url) ?>"><?= e(ucfirst($label)) ?></a> &nbsp;<?php endif; ?><?php endforeach; ?></p><?php endif; ?>
 
 </div></body></html>
 <?php

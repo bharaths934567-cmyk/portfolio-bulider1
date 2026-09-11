@@ -20,6 +20,20 @@ php -r "echo password_hash('change-this-password', PASSWORD_DEFAULT), PHP_EOL;"
 
 6. Visit `/admin/login.php` to manage templates.
 
+## XAMPP on Linux
+
+Start Apache and MySQL from the XAMPP manager, or run these commands in a terminal:
+
+```bash
+sudo /opt/lampp/lampp startapache
+sudo /opt/lampp/lampp startmysql
+sudo ln -sfn /home/bharath/Downloads/portfolio-bulider1 /opt/lampp/htdocs/portfolio-builder1
+/opt/lampp/bin/mysql -u root < /home/bharath/Downloads/portfolio-bulider1/schema.sql
+/opt/lampp/bin/mysql -u root portfolio_builder < /home/bharath/Downloads/portfolio-bulider1/database/seed_templates.sql
+```
+
+Open `http://127.0.0.1/portfolio-builder1/`. XAMPP's PHP installation already provides the DOM, PDO MySQL, Fileinfo, and Mbstring extensions required by this project. Use `http://127.0.0.1/phpmyadmin/` to inspect the database.
+
 ## Features
 
 Users can register, choose from 50 seeded active templates, build portfolios with repeatable education, skill, project, and experience rows, preview, export standalone HTML, and print to PDF. The admin panel provides dashboard counts and template create/edit/delete management. Template selection is restricted to active records and all forms use prepared SQL and CSRF tokens.
