@@ -5,6 +5,21 @@
 function j($json) { $d = json_decode($json ?? '[]', true); return is_array($d) ? $d : []; }
 
 function render_template(array $portfolio, array $template, bool $forExport = false): string {
+  if (!empty($template['template_html'])) {
+    $values = j($portfolio['custom_data'] ?? '{}');
+    foreach (['full_name' => $portfolio['full_name'] ?? '', 'name' => $portfolio['full_name'] ?? '', 'email' => $portfolio['email'] ?? '', 'about' => $portfolio['about'] ?? '', 'job_title' => $portfolio['tagline'] ?? ''] as $key => $value) $values[$key] ??= $value;
+    $html = $template['template_html'];
+    foreach ($values as $key => $value) {
+      $replacement = is_array($value) ? implode(', ', array_map('strval', $value)) : (string)$value;
+      $html = preg_replace('/\{\{\s*' . preg_quote((string)$key, '/') . '\s*\}\}/i', nl2br(e($replacement)), $html);
+    }
+    $css = $template['template_css'] ?? '';
+    if ($css !== '') {
+      $style = '<style>' . $css . '</style>';
+      $html = preg_match('/<\/head>/i', $html) ? preg_replace('/<\/head>/i', $style . '</head>', $html, 1) : $style . $html;
+    }
+    return $html;
+  }
   $template['template_file'] = $template['template_file'] ?? 'modern.php';
   $template['layout_type'] = $template['layout_type'] ?? 'modern';
   $template['accent_color'] = $template['accent_color'] ?? '#4f6df5';

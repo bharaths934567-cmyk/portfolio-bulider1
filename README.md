@@ -52,3 +52,9 @@ Users can register, choose from 50 seeded active templates, build portfolios wit
 `auth/` handles sessions, `admin/` handles administration, `includes/renderer.php` provides reusable portfolio rendering, `database/` contains seed data, and `assets/` contains the responsive UI styles.
 
 The `download-pdf.php` route uses Dompdf after `composer install` and returns a server-generated PDF without exposing internal paths.
+
+## Dynamic HTML/CSS Templates
+
+Run `database/migrate_dynamic_templates.sql` once on an existing database. Admins can then upload an HTML file and an optional CSS file from the Add Template panel. Placeholders such as `{{name}}`, `{{gallery}}`, `{{services}}`, `{{skills}}`, and `{{instagram}}` are detected automatically and shown as the user form fields for that template.
+
+Uploaded HTML is sanitized to remove PHP and script execution. Uploaded CSS is stored as data and injected into the generated document; no uploaded server-side code is included or executed. Existing PHP templates remain available as backward-compatible seeded templates, but the new upload flow accepts HTML/CSS only.

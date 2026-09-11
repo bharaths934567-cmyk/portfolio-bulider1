@@ -3,7 +3,7 @@ require_once 'config.php';
 require_login();
 $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (!$id) { http_response_code(404); exit('Portfolio not found.'); }
-$stmt = $pdo->prepare("SELECT p.*, t.template_file, t.layout_type, t.accent_color, t.name AS tpl_name FROM portfolios p JOIN templates t ON t.id = p.template_id WHERE p.id = ? AND p.user_id = ?");
+$stmt = $pdo->prepare("SELECT p.*, t.template_file, t.template_html, t.template_css, t.fields_json, t.layout_type, t.accent_color, t.name AS tpl_name FROM portfolios p JOIN templates t ON t.id = p.template_id WHERE p.id = ? AND p.user_id = ?");
 $stmt->execute([$id, $_SESSION['user_id']]);
 $portfolio = $stmt->fetch();
 if (!$portfolio) { http_response_code(404); exit('Portfolio not found.'); }

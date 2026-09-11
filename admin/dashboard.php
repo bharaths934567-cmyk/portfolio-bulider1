@@ -21,18 +21,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $color = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['accent_color'] ?? '') ? $_POST['accent_color'] : '#4f6df5';
   $status = ($_POST['status'] ?? 'active') === 'inactive' ? 'inactive' : 'active';
   if ($name === '') throw new RuntimeException('Template name is required.');
-  $templateFile = upload_file($_FILES['template_file'] ?? [], 'php', ['application/x-php' => 'php', 'text/x-php' => 'php', 'text/plain' => 'php'], 1048576);
+    $html = null;
+    $css = null;
+    if (isset($_FILES['template_html']) && ($_FILES['template_html']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+      if ($_FILES['template_html']['error'] !== UPLOAD_ERR_OK || $_FILES['template_html']['size'] > 2097152) throw new RuntimeException('HTML file is invalid or too large.');
+      $html = clean_template_html(file_get_contents($_FILES['template_html']['tmp_name']));
+      if (stripos($html, '<html') === false && stripos($html, '<body') === false) throw new RuntimeException('Upload a complete HTML template.');
+    }
+    if (isset($_FILES['template_css']) && ($_FILES['template_css']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+      if ($_FILES['template_css']['error'] !== UPLOAD_ERR_OK || $_FILES['template_css']['size'] > 2097152) throw new RuntimeException('CSS file is invalid or too large.');
+      $css = clean_template_css(file_get_contents($_FILES['template_css']['tmp_name']));
+    }
+    $fieldsJson = $html !== null ? json_encode(template_fields($html), JSON_UNESCAPED_SLASHES) : null;
   $previewImage = upload_file($_FILES['preview_image'] ?? [], 'previews', ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp']);
   if (!empty($_POST['id'])) {
     $values = [$name, $category, $desc, $layout, $color, $status];
     $sql = 'UPDATE templates SET name=?, category=?, description=?, layout_type=?, accent_color=?, status=?';
-    if ($templateFile) { $sql .= ', template_file=?'; $values[] = $templateFile; }
+    if ($html !== null) { $sql .= ', template_html=?, fields_json=?'; $values[] = $html; $values[] = $fieldsJson; }
+    if ($css !== null) { $sql .= ', template_css=?'; $values[] = $css; }
     if ($previewImage) { $sql .= ', preview_image=?'; $values[] = $previewImage; }
     $sql .= ' WHERE id=?'; $values[] = (int)$_POST['id'];
     $pdo->prepare($sql)->execute($values);
     $msg = 'Template updated.';
   } else {
-    $pdo->prepare('INSERT INTO templates (name, category, description, template_file, preview_image, layout_type, accent_color, status) VALUES (?,?,?,?,?,?,?,?)')->execute([$name, $category, $desc, $templateFile ?: 'modern.php', $previewImage, $layout, $color, $status]);
+    $pdo->prepare('INSERT INTO templates (name, category, description, template_file, preview_image, template_html, template_css, fields_json, layout_type, accent_color, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)')->execute([$name, $category, $desc, 'modern.php', $previewImage, $html, $css, $fieldsJson, $layout, $color, $status]);
     $msg = 'Template added.';
   }
   } catch (Throwable $exception) { $error = $exception->getMessage(); }
@@ -65,7 +77,9 @@ $active    = $pdo->query("SELECT COUNT(*) c FROM templates WHERE status = 'activ
       <input name="name" placeholder="Template name *" value="<?= e($edit['name'] ?? '') ?>" required>
       <input name="description" placeholder="Short description" value="<?= e($edit['description'] ?? '') ?>">
       <input name="category" placeholder="Category" value="<?= e($edit['category'] ?? 'Modern') ?>" required>
-      <label>Template PHP file <input type="file" name="template_file" accept=".php,text/php"></label>
+      <label>Template HTML file <input type="file" name="template_html" accept=".html,.htm,text/html"></label>
+      <label>Template CSS file <input type="file" name="template_css" accept=".css,text/css"></label>
+      <?php if (!empty($edit['fields_json'])): ?><p><strong>Detected fields:</strong> <?php foreach (json_decode($edit['fields_json'], true) ?: [] as $field): ?><code><?= e($field['key']) ?></code> <?php endforeach; ?></p><?php endif; ?>
       <label>Preview image <input type="file" name="preview_image" accept="image/jpeg,image/png,image/webp"></label>
       <select name="layout_type">
         <?php foreach (['modern','classic','creative'] as $l): ?>

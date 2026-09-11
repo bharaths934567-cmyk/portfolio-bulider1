@@ -40,6 +40,20 @@ function template_file_path(string $file): string {
     if (!is_file($path)) throw new RuntimeException('Template file is unavailable.');
     return $path;
 }
+function template_fields(string $html): array {
+    preg_match_all('/\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/', $html, $matches);
+    $fields = [];
+    foreach (array_values(array_unique($matches[1] ?? [])) as $key) {
+        $fields[] = ['key' => $key, 'label' => ucwords(str_replace(['_', '-'], ' ', $key)), 'type' => in_array($key, ['about', 'experience', 'education', 'skills', 'projects', 'gallery', 'services', 'achievements', 'certificates'], true) ? 'textarea' : 'text'];
+    }
+    return $fields;
+}
+function clean_template_html(string $html): string {
+    $html = preg_replace('/<\?(?:php|=).*?\?>/is', '', $html);
+    $html = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html);
+    return preg_replace('/\s+on[a-z]+\s*=\s*(["\']).*?\1/is', '', $html);
+}
+function clean_template_css(string $css): string { return preg_replace('/@import\s+[^;]+;|expression\s*\(|url\s*\(\s*["\']?javascript:/i', '', $css); }
 
 function require_login() {
     if (empty($_SESSION['user_id'])) {

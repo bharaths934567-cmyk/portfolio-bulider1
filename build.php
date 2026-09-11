@@ -3,6 +3,10 @@ require_once 'config.php';
 require_login();
 $tid = $_SESSION['template_id'] ?? 0;
 if (!$tid) { header('Location: choose_template.php'); exit; }
+$templateStmt = $pdo->prepare('SELECT * FROM templates WHERE id = ? AND status = "active"');
+$templateStmt->execute([(int)$tid]);
+$selectedTemplate = $templateStmt->fetch(PDO::FETCH_ASSOC);
+if (!$selectedTemplate) { exit('Template unavailable.'); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   verify_csrf();
@@ -14,7 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         return $out;
     };
-    if (mb_strlen(trim($_POST['full_name'] ?? '')) < 2) { exit('Please enter your full name.'); }
+    $customData = array_map('trim', $_POST['custom'] ?? []);
+    $fullName = trim($_POST['full_name'] ?? ($customData['name'] ?? ''));
+    $tagline = trim($_POST['tagline'] ?? ($customData['job_title'] ?? ''));
+    $about = trim($_POST['about'] ?? ($customData['about'] ?? ''));
+    $email = trim($_POST['email'] ?? ($customData['email'] ?? ''));
+    if (mb_strlen($fullName) < 2) { exit('Please enter your name.'); }
     $education = $clean($_POST['education'] ?? []);
     $skills    = array_values(array_filter(array_map('trim', (array)($_POST['skills'] ?? []))));
     $projects  = $clean($_POST['projects'] ?? []);
@@ -24,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt = $pdo->prepare("INSERT INTO portfolios
         (user_id, template_id, full_name, tagline, about, email, phone, website,
-         education, skills, projects, experience, certifications, social)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+         education, skills, projects, experience, certifications, social, custom_data)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
     $stmt->execute([
         $_SESSION['user_id'], $tid,
-        trim($_POST['full_name'] ?? ''), trim($_POST['tagline'] ?? ''), trim($_POST['about'] ?? ''),
-        trim($_POST['email'] ?? ''), trim($_POST['phone'] ?? ''), trim($_POST['website'] ?? ''),
+        $fullName, $tagline, $about,
+        $email, trim($_POST['phone'] ?? ($customData['phone'] ?? '')), trim($_POST['website'] ?? ($customData['website'] ?? '')),
         json_encode($education), json_encode($skills),
-        json_encode($projects), json_encode($experience), json_encode($certifications), json_encode($social)
+        json_encode($projects), json_encode($experience), json_encode($certifications), json_encode($social), json_encode($customData)
     ]);
     header('Location: generate.php?id=' . $pdo->lastInsertId());
     exit;
@@ -45,6 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h1>Step 2 · Enter Your Details</h1>
 <form method="post" id="buildForm">
 <?= csrf_field() ?>
+
+<?php if (!empty($selectedTemplate['template_html'])): ?>
+  <fieldset><legend><?= e($selectedTemplate['name']) ?> details</legend>
+  <?php foreach (json_decode($selectedTemplate['fields_json'] ?? '[]', true) ?: [] as $field): ?><label><?= e($field['label'] ?? $field['key']) ?><textarea name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"></textarea></label><?php endforeach; ?>
+  </fieldset>
+<?php else: ?>
 
   <fieldset><legend>Basic Info</legend>
     <input name="full_name" placeholder="Full name *" required>
@@ -86,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input name="social[twitter]" placeholder="Twitter / X URL">
     <input name="social[instagram]" placeholder="Instagram URL">
   </fieldset>
+<?php endif; ?>
 
   <br><button class="btn big">Generate Portfolio ➜</button>
 </form>
