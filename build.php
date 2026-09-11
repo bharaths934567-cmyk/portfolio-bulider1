@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php if (!empty($selectedTemplate['template_html'])): ?>
   <fieldset><legend><?= e($selectedTemplate['name']) ?> details</legend>
-  <?php foreach (json_decode($selectedTemplate['fields_json'] ?? '[]', true) ?: [] as $field): ?><label><?= e($field['label'] ?? $field['key']) ?><?php if (($field['type'] ?? 'text') === 'file'): ?><input type="file" name="custom_file[<?= e($field['key']) ?>]" accept="image/jpeg,image/png,image/webp"><?php else: ?><textarea name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"></textarea><?php endif; ?></label><?php endforeach; ?>
+  <?php foreach (json_decode($selectedTemplate['fields_json'] ?? '[]', true) ?: [] as $field): ?><label><?= e($field['label'] ?? $field['key']) ?><?php if (($field['type'] ?? 'text') === 'file'): ?><input type="file" name="custom_file[<?= e($field['key']) ?>]" accept="image/jpeg,image/png,image/webp"><?php elseif (($field['type'] ?? 'text') === 'textarea'): ?><textarea name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"></textarea><?php else: ?><input type="text" name="custom[<?= e($field['key']) ?>]" placeholder="<?= e($field['label'] ?? $field['key']) ?>"><?php endif; ?></label><?php endforeach; ?>
   </fieldset>
 <?php else: ?>
 
