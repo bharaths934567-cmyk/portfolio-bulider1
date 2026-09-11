@@ -29,3 +29,6 @@ legend { font-weight:bold; padding:0 8px; }
 .del { background:#ffe1e1; color:#c0392b; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; }
 .tbl { width:100%; border-collapse:collapse; background:#fff; }
 .tbl th, .tbl td { padding:10px 12px; border-bottom:1px solid #eee; text-align:left; }
+.template-thumb { width:72px; height:48px; object-fit:cover; border-radius:6px; background:#eef1f8; display:inline-flex; align-items:center; justify-content:center; font-size:.72rem; color:#667; }
+.template-thumb.empty { padding:4px; }
+.tpl-preview img { width:100%; height:100%; object-fit:cover; border-radius:8px; opacity:.82; }

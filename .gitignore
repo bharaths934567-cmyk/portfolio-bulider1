@@ -6,6 +6,9 @@
 .env.*
 /uploads/*
 !/uploads/.gitkeep
+/templates/uploads/*
+!/templates/uploads/php/.gitkeep
+!/templates/uploads/previews/.gitkeep
 *.log
 
 # OS/editor files

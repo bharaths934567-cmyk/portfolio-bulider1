@@ -4,6 +4,16 @@
 
 function j($json) { $d = json_decode($json ?? '[]', true); return is_array($d) ? $d : []; }
 
+function render_template(array $portfolio, array $template, bool $forExport = false): string {
+  $template['template_file'] = $template['template_file'] ?? 'modern.php';
+  $template['layout_type'] = $template['layout_type'] ?? 'modern';
+  $template['accent_color'] = $template['accent_color'] ?? '#4f6df5';
+  $templatePath = template_file_path($template['template_file']);
+  ob_start();
+  include $templatePath;
+  return ob_get_clean();
+}
+
 function render_portfolio(array $p, array $t, bool $forExport = false): string {
     $edu  = j($p['education']);
     $skills = j($p['skills']);

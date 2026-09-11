@@ -36,6 +36,13 @@ sudo ln -sfn /home/bharath/Downloads/portfolio-bulider1 /opt/lampp/htdocs/portfo
 
 Open `http://127.0.0.1/portfolio-builder1/`. XAMPP's PHP installation already provides the DOM, PDO MySQL, Fileinfo, and Mbstring extensions required by this project. Use `http://127.0.0.1/phpmyadmin/` to inspect the database.
 
+The admin upload folders must be writable by Apache. On XAMPP Linux, run:
+
+```bash
+sudo chown -R daemon:daemon templates/uploads uploads
+sudo chmod -R 775 templates/uploads uploads
+```
+
 ## Features
 
 Users can register, choose from 50 seeded active templates, build portfolios with repeatable education, skill, project, and experience rows, preview, export standalone HTML, and print to PDF. The admin panel provides dashboard counts and template create/edit/delete management. Template selection is restricted to active records and all forms use prepared SQL and CSRF tokens.

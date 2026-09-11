@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['template_id'])) {
       <form method="post" class="tpl-card">
         <?= csrf_field() ?>
         <input type="hidden" name="template_id" value="<?= $t['id'] ?>">
-        <div class="tpl-preview" style="border-top:6px solid <?= e($t['accent_color']) ?>">
+        <div class="tpl-preview" style="border-top:6px solid <?= e($t['accent_color']) ?>"><?php if (!empty($t['preview_image'])): ?><img src="templates/<?= e($t['preview_image']) ?>" alt="<?= e($t['name']) ?> preview"><?php endif; ?>
           <strong><?= e($t['name']) ?></strong>
           <small><?= e(ucfirst($t['layout_type'])) ?> layout</small>
         </div>
