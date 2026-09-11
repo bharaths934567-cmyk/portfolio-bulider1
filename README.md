@@ -20,6 +20,8 @@ php -r "echo password_hash('change-this-password', PASSWORD_DEFAULT), PHP_EOL;"
 
 6. Visit `/admin/login.php` to manage templates.
 
+For a local development admin account, insert a user with `role = 'admin'` as shown below. Change the password immediately for any shared or deployed environment.
+
 ## XAMPP on Linux
 
 Start Apache and MySQL from the XAMPP manager, or run these commands in a terminal:

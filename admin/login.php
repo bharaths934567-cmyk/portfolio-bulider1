@@ -4,7 +4,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   verify_csrf();
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin'");
-    $stmt->execute([trim($_POST['username'] ?? ''), $_POST['password'] ?? '']);
+    $stmt->execute([trim($_POST['username'] ?? '')]);
     $a = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($a && password_verify($_POST['password'] ?? '', $a['password'])) { session_regenerate_id(true); $_SESSION['admin_id'] = $a['id']; header('Location: dashboard.php'); exit; }
     $error = 'Invalid credentials.';
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($error): ?><p class="error"><?= e($error) ?></p><?php endif; ?>
   <form method="post">
     <?= csrf_field() ?>
-    <input name="username" placeholder="Username" required>
+    <input name="username" type="email" placeholder="Admin email" required>
     <input name="password" type="password" placeholder="Password" required>
     <button class="btn">Login</button>
   </form>
